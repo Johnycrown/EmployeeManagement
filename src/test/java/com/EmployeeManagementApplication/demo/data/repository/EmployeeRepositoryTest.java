@@ -84,6 +84,16 @@ class EmployeeRepositoryTest {
     @Test
     @DisplayName("delete  employee by Id in the database")
     void deleteEmployeeId(){
+        Employee employee = new Employee();
+        employee.setAddress("adekule ajasin");
+        employee.setFirstName("adewale");
+        employee.setLastName("Boluwatife");
+        employee.setPhoneNumber("0812344223");
+        assertThat(employee.getEmployeeId()).isNull();
+        employeeRepository.save(employee);
+        employeeRepository.deleteById(employee.getEmployeeId());
+        assertThat(employeeRepository.findById(employee.getEmployeeId())).isEmpty();
+
 
 
     }
