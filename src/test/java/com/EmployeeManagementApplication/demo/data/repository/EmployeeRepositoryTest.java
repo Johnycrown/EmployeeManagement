@@ -97,5 +97,21 @@ class EmployeeRepositoryTest {
 
 
     }
+    @Test
+    @DisplayName("delete  employee by Id in the database")
+    void employeeCanBeUpdated(){
+        Employee employee = new Employee();
+        employee.setAddress("adekule ajasin");
+        employee.setFirstName("adewale");
+        employee.setLastName("Boluwatife");
+        employee.setPhoneNumber("0812344223");
+        assertThat(employee.getEmployeeId()).isNull();
+        employeeRepository.save(employee);
+        Employee foundemployee = employeeRepository.findById(employee.getEmployeeId()).orElse(null);
+        assertThat(foundemployee.getFirstName()).isEqualTo("adewale");
+        foundemployee.setFirstName("Jolade");
+        assertThat(foundemployee.getFirstName()).isEqualTo("Jolade");
+
+    }
 
 }
