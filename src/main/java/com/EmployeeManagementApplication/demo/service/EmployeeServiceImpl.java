@@ -75,6 +75,7 @@ public class EmployeeServiceImpl implements EmployeeService{
     public void deleteEmployee(Long employeeId) {
         Employee employee = employeeRepository.findById(employeeId).orElse(null);
         if(employee == null){
+
             throw new IllegalArgumentException("the product can not be null");
         }
 
