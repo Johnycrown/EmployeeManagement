@@ -4,6 +4,11 @@ import com.EmployeeManagementApplication.demo.data.dto.EmployeeDto;
 import com.EmployeeManagementApplication.demo.data.mdoel.Employee;
 import com.EmployeeManagementApplication.demo.data.repository.EmployeeRepository;
 import com.EmployeeManagementApplication.demo.web.exceptions.EmployeeException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.JsonPatchException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +16,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-
 public class EmployeeServiceImpl implements EmployeeService{
     @Autowired
     EmployeeRepository employeeRepository;
@@ -42,21 +46,53 @@ public class EmployeeServiceImpl implements EmployeeService{
     }
 
     @Override
-    public Employee updateEmploye(Long employeeId) throws EmployeeException {
+    public Employee updateEmploye(Long employeeId, JsonPatch employeePatch) throws EmployeeException {
        Optional<Employee> employeeQuery = employeeRepository.findById(employeeId);
        if(employeeQuery.isEmpty()){
            throw  new EmployeeException("the employee with "+ employeeId + "does not exist");
        }
-        return null;
+       Employee targetEmployee = employeeQuery.get();
+       try{
+           targetEmployee = applyPatchToEmployee(employeePatch, targetEmployee);
+          return saveorUpdateEmployee(targetEmployee);
+
+       } catch (JsonPatchException | JsonProcessingException | EmployeeException e) {
+
+          throw  new EmployeeException("update failed");
+       }
+
+
+    }
+    private  Employee applyPatchToEmployee(JsonPatch employeePatch, Employee targetEmployee) throws JsonPatchException, JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode patched = employeePatch
+                          .apply(objectMapper.convertValue(targetEmployee, JsonNode.class));
+        return objectMapper.treeToValue(patched, Employee.class);
+
     }
 
     @Override
-    public void deleteEmployee() {
+    public void deleteEmployee(Long employeeId) {
+        Employee employee = employeeRepository.findById(employeeId).orElse(null);
+        if(employee == null){
+            throw new IllegalArgumentException("the product can not be null");
+        }
+
+        employeeRepository.deleteById(employee.getEmployeeId());
+
 
     }
 
     @Override
     public Employee getEmployeeById(Long employeeId) {
-        return null;
+        Optional<Employee> employee = employeeRepository.findById(employeeId);
+        if(employee.isEmpty()){
+            throw new IllegalArgumentException("the  can not be nu");
+        }
+        Employee targetEmployee = employee.get();
+        return targetEmployee;
+
+
+
     }
 }
